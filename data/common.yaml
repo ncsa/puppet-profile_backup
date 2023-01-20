@@ -1,1 +1,55 @@
---- {}
+---
+profile_backup::common::packages:
+  "gcc-c++":
+  "libacl":
+  "libacl-devel":
+  "libzstd-devel":
+  "lz4-devel":
+  "openssl-devel":
+  #"xxhash-devel":  # NOT AVAILABLE FOR RHEL. borg BUILD PROCESS WILL INCLUDE OWN COPY IF NOT PROVIDED BY OS
+  "python3":
+  "python3-devel":
+  "python3-pip":
+  "pkgconfig":
+    provider: "pip3"
+    require:
+      - "Package[python3-pip]"
+  "setuptools-scm":
+    provider: "pip3"
+    require:
+      - "Package[pkgconfig]"
+  "borgbackup":
+    provider: "pip3"
+    require:
+      - "Package[gcc-c++]"
+      - "Package[libacl-devel]"
+      - "Package[libzstd-devel]"
+      - "Package[lz4-devel]"
+      - "Package[openssl-devel]"
+      #- "Package[xxhash-devel]"
+      - "Package[pkgconfig]"
+      - "Package[setuptools-scm]"
+profile_backup::common::pip_config: "/etc/pip.conf"
+profile_backup::common::pip_proxy: ""
+
+profile_backup::server::additional_sshd_match_params:
+  PubkeyAuthentication: "yes"
+  AuthenticationMethods: "publickey"
+  Banner: "none"
+  MaxAuthTries: "6"
+  MaxSessions: "10"
+  X11Forwarding: "no"
+profile_backup::server::allow_client_requires: []
+profile_backup::server::backup_directory: null
+profile_backup::server::clients: {}
+#profile_backup::server::clients:
+#  "example client 1":
+#    hostname: "client1.local"
+#    ip: "127.0.0.1"
+#    ssh_key_pub: "AAAAB..."
+#    ssh_key_type: "ssh-rsa"
+profile_backup::server::gid: null
+profile_backup::server::groupname: "nobody"
+profile_backup::server::storage_dependencies: []
+profile_backup::server::uid: null
+profile_backup::server::username: "backup"
