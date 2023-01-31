@@ -53,6 +53,9 @@ define profile_backup::server::allow_client (
   # ENSURE REPOSITORY DIRECTORY FOR THIS CLIENT
   file { $repo_path:
     ensure  => directory,
+    group   => $profile_backup::server::gid,
+    mode    => '0700',
+    owner   => $profile_backup::server::uid,
     require => $profile_backup::server::allow_client_requires,
   }
 }
