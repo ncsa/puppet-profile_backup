@@ -1,0 +1,19 @@
+#!/bin/sh
+# This file is managed by Puppet.
+
+# LOAD CLIENT BORG DEFAULTS
+source <%= @work_directory %>/borg_defaults.sh
+
+$BORG list
+
+list_exit=$?
+
+if [ ${list_exit} -eq 0 ]; then
+    echo "List finished successfully"
+elif [ ${list_exit} -eq 1 ]; then
+    echo "List finished with warnings"
+else
+    echo "List finished with errors"
+fi
+
+exit ${list_exit}

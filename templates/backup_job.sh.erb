@@ -1,0 +1,19 @@
+#!/bin/bash
+# This file is managed by Puppet.
+# Backup job script for job: <%= @name %>
+
+set -x
+
+<% if @prehook_commands -%>
+# COMMANDS TO RUN BEFORE BACKUP
+<%= @prehook_commands %>
+<% end -%>
+
+# BORG BACKUP OF <%= @name %>
+<%= @work_directory %>/borg_backup_job.sh --job <%= @name %> --paths '<%= @backup_paths %>'
+
+<% if @posthook_commands -%>
+# COMMANDS TO RUN AFTER BACKUP
+<%= @posthook_commands %>
+<% end -%>
+

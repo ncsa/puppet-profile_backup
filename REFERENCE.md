@@ -7,13 +7,14 @@
 ### Classes
 
 * [`profile_backup`](#profile_backup): Install and configure NCSA Service Backups for clients and backup servers
-* [`profile_backup::client`](#profile_backupclient): Configure backup client
-* [`profile_backup::common`](#profile_backupcommon): Configure common things for both backup clients and servers.
-* [`profile_backup::server`](#profile_backupserver): Configure backup server
+* [`profile_backup::client`](#profile_backup--client): Configure backup client
+* [`profile_backup::common`](#profile_backup--common): Configure common things for both backup clients and servers.
+* [`profile_backup::server`](#profile_backup--server): Configure backup server
 
 ### Defined types
 
-* [`profile_backup::server::allow_client`](#profile_backupserverallow_client): Enable backup client to access backup server
+* [`profile_backup::client::add_job`](#profile_backup--client--add_job): Defined type to add a new service backup job
+* [`profile_backup::server::allow_client`](#profile_backup--server--allow_client): Enable backup client to access backup server
 
 ## Classes
 
@@ -34,7 +35,7 @@ should be included, depending on the role:
 include profile_backup::client
 ```
 
-### <a name="profile_backupclient"></a>`profile_backup::client`
+### <a name="profile_backup--client"></a>`profile_backup::client`
 
 Configure backup client
 
@@ -50,29 +51,85 @@ include profile_backup::client
 
 The following parameters are available in the `profile_backup::client` class:
 
-* [`ssh_key_priv`](#ssh_key_priv)
-* [`ssh_key_pub`](#ssh_key_pub)
-* [`ssh_key_type`](#ssh_key_type)
+* [`enabled`](#-profile_backup--client--enabled)
+* [`encryption_passphrase`](#-profile_backup--client--encryption_passphrase)
+* [`job_cron_schedule`](#-profile_backup--client--job_cron_schedule)
+* [`prune_settings`](#-profile_backup--client--prune_settings)
+* [`server_user`](#-profile_backup--client--server_user)
+* [`servers`](#-profile_backup--client--servers)
+* [`ssh_key_priv`](#-profile_backup--client--ssh_key_priv)
+* [`ssh_key_pub`](#-profile_backup--client--ssh_key_pub)
+* [`ssh_key_type`](#-profile_backup--client--ssh_key_type)
+* [`verify_cron_schedule`](#-profile_backup--client--verify_cron_schedule)
+* [`work_directory`](#-profile_backup--client--work_directory)
 
-##### <a name="ssh_key_priv"></a>`ssh_key_priv`
+##### <a name="-profile_backup--client--enabled"></a>`enabled`
+
+Data type: `Boolean`
+
+Abitilty to enable/disable backups
+
+##### <a name="-profile_backup--client--encryption_passphrase"></a>`encryption_passphrase`
+
+Data type: `String`
+
+Encryption passphrase used by the client's backups
+
+##### <a name="-profile_backup--client--job_cron_schedule"></a>`job_cron_schedule`
+
+Data type: `Hash`
+
+Cron settings for backup jobs
+
+##### <a name="-profile_backup--client--prune_settings"></a>`prune_settings`
+
+Data type: `Hash`
+
+Settings used for pruning client's backup data
+
+##### <a name="-profile_backup--client--server_user"></a>`server_user`
+
+Data type: `String`
+
+User that client connects to backup server as
+
+##### <a name="-profile_backup--client--servers"></a>`servers`
+
+Data type: `Array[String]`
+
+List of backup servers that client can backup to
+
+##### <a name="-profile_backup--client--ssh_key_priv"></a>`ssh_key_priv`
 
 Data type: `String`
 
 The private ssh key itself; generally a very long string...
 
-##### <a name="ssh_key_pub"></a>`ssh_key_pub`
+##### <a name="-profile_backup--client--ssh_key_pub"></a>`ssh_key_pub`
 
 Data type: `String`
 
 The public ssh key itself; generally a long string...
 
-##### <a name="ssh_key_type"></a>`ssh_key_type`
+##### <a name="-profile_backup--client--ssh_key_type"></a>`ssh_key_type`
 
 Data type: `String`
 
 The encryption type used in the ssh key.
 
-### <a name="profile_backupcommon"></a>`profile_backup::common`
+##### <a name="-profile_backup--client--verify_cron_schedule"></a>`verify_cron_schedule`
+
+Data type: `Hash`
+
+Cron settings for backup verification
+
+##### <a name="-profile_backup--client--work_directory"></a>`work_directory`
+
+Data type: `String`
+
+Directory path where backup scripts and jobs are located
+
+### <a name="profile_backup--common"></a>`profile_backup::common`
 
 Configure common things for both backup clients and servers.
 
@@ -88,29 +145,29 @@ include profile_backup::common
 
 The following parameters are available in the `profile_backup::common` class:
 
-* [`packages`](#packages)
-* [`pip_config`](#pip_config)
-* [`pip_proxy`](#pip_proxy)
+* [`packages`](#-profile_backup--common--packages)
+* [`pip_config`](#-profile_backup--common--pip_config)
+* [`pip_proxy`](#-profile_backup--common--pip_proxy)
 
-##### <a name="packages"></a>`packages`
+##### <a name="-profile_backup--common--packages"></a>`packages`
 
 Data type: `Hash`
 
 Packages to install to support the backup service.
 
-##### <a name="pip_config"></a>`pip_config`
+##### <a name="-profile_backup--common--pip_config"></a>`pip_config`
 
 Data type: `String`
 
 Path to pip config file
 
-##### <a name="pip_proxy"></a>`pip_proxy`
+##### <a name="-profile_backup--common--pip_proxy"></a>`pip_proxy`
 
 Data type: `String`
 
 Optional proxy server for pip configuration
 
-### <a name="profile_backupserver"></a>`profile_backup::server`
+### <a name="profile_backup--server"></a>`profile_backup::server`
 
 Configure backup server
 
@@ -126,23 +183,23 @@ include profile_backup::server
 
 The following parameters are available in the `profile_backup::server` class:
 
-* [`additional_sshd_match_params`](#additional_sshd_match_params)
-* [`allow_client_requires`](#allow_client_requires)
-* [`backup_directory`](#backup_directory)
-* [`clients`](#clients)
-* [`gid`](#gid)
-* [`groupname`](#groupname)
-* [`uid`](#uid)
-* [`username`](#username)
+* [`additional_sshd_match_params`](#-profile_backup--server--additional_sshd_match_params)
+* [`allow_client_requires`](#-profile_backup--server--allow_client_requires)
+* [`backup_directory`](#-profile_backup--server--backup_directory)
+* [`clients`](#-profile_backup--server--clients)
+* [`gid`](#-profile_backup--server--gid)
+* [`groupname`](#-profile_backup--server--groupname)
+* [`uid`](#-profile_backup--server--uid)
+* [`username`](#-profile_backup--server--username)
 
-##### <a name="additional_sshd_match_params"></a>`additional_sshd_match_params`
+##### <a name="-profile_backup--server--additional_sshd_match_params"></a>`additional_sshd_match_params`
 
 Data type: `Hash`
 
 Hash of additional sshd match parameters.
 Passed to `sshd::allow_from` defined type from `profile_backup::server::allow_client`.
 
-##### <a name="allow_client_requires"></a>`allow_client_requires`
+##### <a name="-profile_backup--server--allow_client_requires"></a>`allow_client_requires`
 
 Data type: `Array[String]`
 
@@ -154,19 +211,19 @@ be specified as a `require` array, e.g.:
 - "Package[package1]"
 ```
 
-##### <a name="backup_directory"></a>`backup_directory`
+##### <a name="-profile_backup--server--backup_directory"></a>`backup_directory`
 
 Data type: `String`
 
 Directory path where backups are stored for each client.
 
-##### <a name="clients"></a>`clients`
+##### <a name="-profile_backup--server--clients"></a>`clients`
 
 Data type: `Hash`
 
-Clients that need to be manually configured.
-Backup clients that are using the same Puppet server should not need to
-be added here as those are added via 'exported resources' via PuppetDB.
+Some clients will need to be manually configured for access to the servers.
+Backup clients that are using the same PuppetDB server as used by the backup servers should
+not need to be added here as those are added via 'exported resources'.
 This is a hash that contains all the parameters for `profile_backup::server::allow_client`:
 ```yaml
 profile_backup::server::clients:
@@ -177,25 +234,25 @@ profile_backup::server::clients:
     ssh_key_type: "ssh-rsa"  # ENCRYPTION TYPE
 ```
 
-##### <a name="gid"></a>`gid`
+##### <a name="-profile_backup--server--gid"></a>`gid`
 
 Data type: `String`
 
 Group id of user that owns backup files.
 
-##### <a name="groupname"></a>`groupname`
+##### <a name="-profile_backup--server--groupname"></a>`groupname`
 
 Data type: `String`
 
 Groupname that owns backup files.
 
-##### <a name="uid"></a>`uid`
+##### <a name="-profile_backup--server--uid"></a>`uid`
 
 Data type: `String`
 
 User id of user that owns backup files.
 
-##### <a name="username"></a>`username`
+##### <a name="-profile_backup--server--username"></a>`username`
 
 Data type: `String`
 
@@ -203,7 +260,54 @@ Username that owns backup files and allowed access.
 
 ## Defined types
 
-### <a name="profile_backupserverallow_client"></a>`profile_backup::server::allow_client`
+### <a name="profile_backup--client--add_job"></a>`profile_backup::client::add_job`
+
+Add a service backup job to this backup client
+
+#### Examples
+
+##### 
+
+```puppet
+profile_backup::client::add_job { 'jobname':
+  paths             => [ '/directory1', '/tmp/directory2.tar', ],
+  prehook_commands  => 'tar cf /tmp/directory2.tar /directory2',
+  posthook_commands => 'rm -f /tmp/directory2.tar',
+}
+```
+
+#### Parameters
+
+The following parameters are available in the `profile_backup::client::add_job` defined type:
+
+* [`paths`](#-profile_backup--client--add_job--paths)
+* [`prehook_commands`](#-profile_backup--client--add_job--prehook_commands)
+* [`posthook_commands`](#-profile_backup--client--add_job--posthook_commands)
+
+##### <a name="-profile_backup--client--add_job--paths"></a>`paths`
+
+Data type: `Array[String]`
+
+List of directory paths for the job to backup.
+Can be a list of directories and/or specific files.
+
+##### <a name="-profile_backup--client--add_job--prehook_commands"></a>`prehook_commands`
+
+Data type: `Optional[String]`
+
+Optional commands to run before backup job
+
+Default value: `undef`
+
+##### <a name="-profile_backup--client--add_job--posthook_commands"></a>`posthook_commands`
+
+Data type: `Optional[String]`
+
+Optional commands to run after the backup job
+
+Default value: `undef`
+
+### <a name="profile_backup--server--allow_client"></a>`profile_backup::server::allow_client`
 
 Enable backup client to access backup server
 
@@ -224,30 +328,30 @@ profile_backup::server::allow_client { 'allow host hostname access to backup ser
 
 The following parameters are available in the `profile_backup::server::allow_client` defined type:
 
-* [`hostname`](#hostname)
-* [`ip`](#ip)
-* [`ssh_key_pub`](#ssh_key_pub)
-* [`ssh_key_type`](#ssh_key_type)
+* [`hostname`](#-profile_backup--server--allow_client--hostname)
+* [`ip`](#-profile_backup--server--allow_client--ip)
+* [`ssh_key_pub`](#-profile_backup--server--allow_client--ssh_key_pub)
+* [`ssh_key_type`](#-profile_backup--server--allow_client--ssh_key_type)
 
-##### <a name="hostname"></a>`hostname`
+##### <a name="-profile_backup--server--allow_client--hostname"></a>`hostname`
 
 Data type: `String`
 
 fqdn hostname of backup client.
 
-##### <a name="ip"></a>`ip`
+##### <a name="-profile_backup--server--allow_client--ip"></a>`ip`
 
 Data type: `String`
 
 ip of backup client.
 
-##### <a name="ssh_key_pub"></a>`ssh_key_pub`
+##### <a name="-profile_backup--server--allow_client--ssh_key_pub"></a>`ssh_key_pub`
 
 Data type: `String`
 
 The public ssh key itself; generally a long string...
 
-##### <a name="ssh_key_type"></a>`ssh_key_type`
+##### <a name="-profile_backup--server--allow_client--ssh_key_type"></a>`ssh_key_type`
 
 Data type: `String`
 

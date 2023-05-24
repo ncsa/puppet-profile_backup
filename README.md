@@ -5,13 +5,11 @@
 
 NCSA Common Puppet Profiles - configure NCSA Service backups
 
-> :warning: **This is work in progress**: Currently only the `::profile_backup::server` logic is functional.
 
 ## Table of Contents
 
 1. [Description](#description)
 1. [Setup - The basics of getting started with profile_backup](#setup)
-1. [Usage - Configuration options and additional functionality](#usage)
 1. [Dependencies](#dependencies)
 1. [Reference](#reference)
 
@@ -26,9 +24,33 @@ See https://wiki.ncsa.illinois.edu/display/ICI/NCSA+Service+Backups
 
 ### Backup Clients
 
-To setup a backup client include profile_backup in a puppet profile file for a service:
+Generally only clients that use a **puppet profile** class that needs backups should be configured for backups. 
+So to setup a backup client in a **puppet profile** class for a service 1) include `profile_backup::client` and 2) add a backup job:
 ```
 include ::profile_backup::client
+
+profile_backup::client::add_job { 'jobname':
+  paths             => [ '/directory1', '/tmp/directory2.tar', ],
+  prehook_commands  => 'tar cf /tmp/directory2.tar /directory2',
+  posthook_commands => 'rm -f /tmp/directory2.tar',
+}
+```
+
+The backup clients will need the following parameters supplied:
+```yaml
+profile_backup::client::encryption_passphrase: "CHANGE ME"  # PREFERABLY IN EYAML
+profile_backup::client::server_user: "backup"
+profile_backup::client::servers:
+  - "backup1.local"
+  - "backup2.local"
+profile_backup::client::ssh_key_priv: "SSH PRIVATE KEY CONTENTS"  # PREFERABLY IN EYAML
+profile_backup::client::ssh_key_pub:  "SSH PUBLIC KEY CONTENTS"   # PREFERABLY IN EYAML
+profile_backup::client::ssh_key_type: "ssh-ed25519"
+```
+
+If for some reason you want to disable backups, the following parameter should be set:
+```yaml
+profile_backup::client::enabled: false
 ```
 
 ### Backup Servers
@@ -53,11 +75,7 @@ profile_backup::server::uid: "9999"
 profile_backup::server::username: "backup"
 ```
 
-If multiple backup servers are setup, `$profile_backup::server::backup_directory` needs to be mounted from a remote or distributed filesystem. The `$profile_backup::server::allow_client_requires` parameter provides a way to add adhod resource requirements that can be used to ensure the remote filesystem is mounted before attempting to write to it.
-
-## Usage
-
-The goal is that no paramters are required to be set. The default paramters should work for most NCSA deployments out of the box.
+If multiple backup servers are setup, `$profile_backup::server::backup_directory` needs to be mounted from a remote or distributed filesystem. The `$profile_backup::server::allow_client_requires` parameter provides a way to add adhoc resource requirements that can be used to ensure the remote filesystem is mounted before attempting to write to it.
 
 
 ## Dependencies
