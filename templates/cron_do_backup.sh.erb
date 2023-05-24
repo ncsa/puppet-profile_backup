@@ -1,0 +1,16 @@
+#!/bin/bash
+# This file is managed by Puppet.
+# CRON Script to process all backup job scripts
+
+BACKUP_JOBS=$(ls -1 <%= @work_directory %>/backup_job_*.sh)
+LAST_RUN='/var/log/backup_last_run'
+
+if [ ! -z "$BACKUP_JOBS" ]; then
+  # CLEAR LAST RUN FILE
+  echo -n "" > $LAST_RUN
+  for JOB in $BACKUP_JOBS; do
+    $JOB 2>&1 | tee -a $LAST_RUN | logger -s -t backup
+  done
+fi
+
+# rsyslog WILL BE CONFIGURED TO WATCH $last_run FILE

@@ -1,0 +1,26 @@
+#!/bin/bash
+# This file is managed by Puppet.
+
+# ONLY RUN IF backup_job_* JOBS ARE PRESENT
+if find <%= @work_directory %>/backup_job_* -maxdepth 1 -type f 2>/dev/null | grep -q . ; then
+
+  # LOAD CLIENT BORG DEFAULTS
+  source <%= @work_directory %>/borg_defaults.sh
+
+  # Temporarily turned off --verify-data option as very slow.
+  # https://borgbackup.readthedocs.io/en/stable/usage/check.html
+  #$BORG check --show-rc --verify-data --verbose
+  $BORG check --show-rc --verbose
+
+  check_exit=$?
+        
+  if [ ${check_exit} -eq 0 ]; then
+    echo "Check finished successfully"
+  elif [ ${check_exit} -eq 1 ]; then
+    echo "Check finished with warnings"
+  else 
+    echo "Check finished with errors"
+  fi
+
+  exit ${check_exit}
+fi

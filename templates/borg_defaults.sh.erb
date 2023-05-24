@@ -1,0 +1,32 @@
+#!/bin/sh
+# This file is managed by Puppet.
+
+REPOPATH='backups/<%= @facts['networking']['fqdn'] %>'
+BACKUPUSER='<%= @server_user %>'
+export BORG='/usr/local/bin/borg'
+export BORG_RSH='ssh -i <%= @sshdir %>/backup_id_<%= @ssh_key_type %> -o StrictHostKeyChecking=no'
+export BORG_PASSPHRASE='<%= @encryption_passphrase %>'
+export BORG_PRUNE_OPTIONS='<%= @prune_options_string %>'
+export BORG_RELOCATED_REPO_ACCESS_IS_OK=yes
+
+SERVER_LIST='<%= @server_list %>'
+# CHOOSE BACKUP SERVER THAT IS RESPONDING
+for SERVER in $SERVER_LIST; do
+  REPO="ssh://${BACKUPUSER}@${SERVER}/${REPOPATH}"
+  # IF THIS IS FIRST EVER RUN, NEED TO RUN borg init
+  if $BORG init --encryption=repokey ${REPO} &>/dev/null; then
+    BACKUP_SERVER=$SERVER
+    break
+  # IF REPO ALREADY EXISTS, NEED TO RUN borg info
+  elif $BORG info ${REPO} &>/dev/null; then
+    BACKUP_SERVER=$SERVER
+    break
+  fi
+done
+
+if [ -z "$BACKUP_SERVER" ]; then
+  echo "ERROR: No backup servers (<%= @server_list %>) are responding via SSH."
+  exit
+else
+  export BORG_REPO="ssh://${BACKUPUSER}@${BACKUP_SERVER}/${REPOPATH}"
+fi

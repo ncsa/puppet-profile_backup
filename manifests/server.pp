@@ -17,9 +17,9 @@
 #   Directory path where backups are stored for each client.
 #
 # @param clients
-#   Clients that need to be manually configured.
-#   Backup clients that are using the same Puppet server should not need to
-#   be added here as those are added via 'exported resources' via PuppetDB.
+#   Some clients will need to be manually configured for access to the servers.
+#   Backup clients that are using the same PuppetDB server as used by the backup servers should 
+#   not need to be added here as those are added via 'exported resources'.
 #   This is a hash that contains all the parameters for `profile_backup::server::allow_client`:
 #   ```yaml
 #   profile_backup::server::clients:
@@ -54,48 +54,39 @@ class profile_backup::server (
   String $uid,
   String $username,
 ) {
+  if empty($gid) or empty($uid) {
+    fail('You must provide both gid and uid parameters in class profile_backup::server.')
+  }
+
   include profile_backup::common
 
-  if ($gid) and ($uid) {
-    $dir_defaults = {
-      ensure => directory,
-      group  => $gid,
-      owner  => $uid,
-    }
+  $dir_defaults = {
+    ensure => directory,
+    group  => $gid,
+    owner  => $uid,
+  }
 
-    # SETUP BACKUP USER & GROUP
-    group { $groupname:
-      ensure => 'present',
-      gid    => $gid,
-    }
+  # SETUP BACKUP USER & GROUP
+  group { $groupname:
+    ensure => 'present',
+    gid    => $gid,
+  }
 
-    user { $username:
-      ensure   => 'present',
-      uid      => $uid,
-      gid      => $gid,
-      #forcelocal     => true,
-      home     => $backup_directory,
-      password => '!!',
-      #purge_ssh_keys => true,
-      shell    => '/bin/bash',
-      comment  => 'NCSA Service Backups',
-    }
+  user { $username:
+    ensure   => 'present',
+    uid      => $uid,
+    gid      => $gid,
+    home     => $backup_directory,
+    password => '!!',
+    shell    => '/bin/bash',
+    comment  => 'NCSA Service Backups',
+  }
 
-    # COLLECT EXPORTED RESOURCES FOR backup_allow_client_on_server
-    Profile_backup::Server::Allow_client <<| tag == 'profile_backup_allow_client' |>>
+  # COLLECT EXPORTED RESOURCES FOR backup_allow_client_on_server
+  Profile_backup::Server::Allow_client <<| tag == 'profile_backup_allow_client' |>>
 
-    # ENSURE MANUALY SPECIFIED RESOURCES (FROM HIERA) FOR CLIENTS USING DIFFERENT PUPPET SERVER
-    $clients.each |$key, $value| {
-      profile_backup::server::allow_client { $key: * => $value }
-    }
-  } elsif $gid {
-    # we've specified $gid but NOT $uid
-    fail('You must provide both gid and uid. You provided only gid.')
-  } elsif $uid {
-    # we've specified $uid but NOT $gid
-    fail('You must provide both gid and uid. You provided only uid.')
-  } else {
-    # we've specified neither $gid nor $uid
-    fail('You must provide both gid and uid. You provided neither.')
+  # ENSURE MANUALY SPECIFIED RESOURCES (FROM HIERA) FOR CLIENTS USING DIFFERENT PUPPET SERVER
+  $clients.each |$key, $value| {
+    profile_backup::server::allow_client { $key: * => $value }
   }
 }

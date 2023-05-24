@@ -38,7 +38,7 @@ define profile_backup::server::allow_client (
   # SETUP SSH AUTHORIZED KEY ENTRY FOR CLIENT
   ssh_authorized_key { $hostname:
     ensure  => present,
-    key     => $ssh_key_pub,
+    key     => Sensitive($ssh_key_pub),
     # SEE https://borgbackup.readthedocs.io/en/stable/quickstart.html#remote-repositories
     options => [
       "from=\"${ip}\"",

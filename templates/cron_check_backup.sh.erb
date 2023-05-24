@@ -1,0 +1,9 @@
+#!/bin/bash
+# This file is managed by Puppet.
+# CRON Script to check and verify backup repo and archives
+
+LAST_RUN='/var/log/backup_check_last_run'
+
+/root/backup/borg_check.sh 2>&1 | tee $LAST_RUN | logger -s -t backup_check
+
+# rsyslog WILL BE CONFIGURED TO WATCH $last_run FILE

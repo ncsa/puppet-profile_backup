@@ -1,0 +1,67 @@
+#!/bin/bash
+
+# STATUS OF BACKUP JOBS
+
+backup_run_file='/var/log/backup_last_run'
+#host=$(hostname -f)
+
+if [ -s "$backup_run_file" ] ; then
+  # FILE $backup_run_file IS NOT EMPTY AND EXISTS
+
+  backup_run_file_timestamp_string=$( stat $backup_run_file | grep 'Modify: ' | cut -d' ' -f2,3,4 )
+  backup_run_file_timestamp_epoch=$( date --date="${backup_run_file_timestamp_string}" +%s )
+  lastrun_timestamp_epoch=$( date --date="<%= @telegraf_interval_date_string %>" +%s )
+
+  if [ $backup_run_file_timestamp_epoch -ge $lastrun_timestamp_epoch ] ; then
+    archives_created=$( grep -i 'Creating archive' $backup_run_file | wc -l )
+    archives_kept=$( grep -i 'Keeping archive' $backup_run_file | wc -l )
+    archives_pruned=$( grep -i 'Pruning archive' $backup_run_file | wc -l )
+    backup_jobs=$( grep -i 'backup starting' $backup_run_file | wc -l )
+    backup_return_code=$( grep -i -B1 'backup finished' $backup_run_file | grep -i terminating | grep rc | awk '{ print $NF }' | sort -rn | head -n1 )
+    files_added=$( egrep '^A /' $backup_run_file | wc -l )
+    files_changed_in_process=$( egrep '^C /' $backup_run_file | wc -l )
+    files_errored=$( egrep '^E /' $backup_run_file | wc -l )
+    files_modified=$( egrep '^M /' $backup_run_file | wc -l )
+    #files_unchanged=$( egrep '^U /' $backup_run_file | wc -l )
+    prune_return_code=$( grep -i -B1 'prune finished' $backup_run_file | grep -i terminating | grep rc | awk '{ print $NF }' | sort -rn | head -n1 )
+    backup_run_file_timestamp_epoch_ns="${backup_run_file_timestamp_epoch}000000000"
+
+    echo "backup archives_created=${archives_created},archives_kept=${archives_kept},archives_pruned=${archives_pruned},backup_jobs=${backup_jobs},backup_return_code=${backup_return_code},files_added=${files_added},files_changed_in_process=${files_changed_in_process},files_errored=${files_errored},files_modified=${files_modified},prune_return_code=${prune_return_code} $backup_run_file_timestamp_epoch_ns"
+  fi
+
+  # GET LATEST BACKUP TIMES FOR EACH BACKUP JOB
+  now_timestamp_epoch=$( date +%s )
+  lastest_archives=$(grep -i 'Keeping archive' $backup_run_file | awk '{ print $3 }' | uniq -w 8)
+  for archive in $lastest_archives; do
+    backup_job=$(echo ${archive} | awk -F\- '{ print $1 }')
+    archive_timestamp_string=${archive#*-}
+    timezone=$(date +%z)
+    archive_timestamp_epoch=$( date --date="${archive_timestamp_string}${timezone}" +%s )
+    archive_age_seconds=$((now_timestamp_epoch-archive_timestamp_epoch))
+    echo "backup_age,backup_job=${backup_job} timestamp=${archive_timestamp_epoch}000000000,age=${archive_age_seconds}"
+  done
+
+fi
+
+# STATUS OF BACKUP CHECK
+
+backup_check_file='/var/log/backup_check_last_run'
+
+if [ -s "$backup_check_file" ] ; then
+  # FILE $backup_check_file IS NOT EMPTY AND EXISTS
+
+  backup_check_file_timestamp_string=$( stat $backup_check_file | grep 'Modify: ' | cut -d' ' -f2,3,4 )
+  backup_check_file_timestamp_epoch=$( date --date="${backup_check_file_timestamp_string}" +%s )
+
+  if [ $backup_check_file_timestamp_epoch -ge $lastrun_timestamp_epoch ] ; then
+    return_code=$( grep -i 'terminating with' $backup_check_file | grep rc | awk '{ print $NF }' )
+    repository_error=$( grep -i repository $backup_check_file | grep -i check | grep -i complete | grep -i found | egrep -vi ' no ' | wc -l )
+    archive_error=$( grep -i archive $backup_check_file | grep -i check | grep -i complete | grep -i found | egrep -vi ' no ' | wc -l )
+    chunks_missing=$( grep -i 'chunk missing' $backup_check_file | wc -l )
+    integrity_errors=$( grep -i 'integrity error' $backup_check_file | wc -l )
+    defect_chunks=$( grep -i 'defect chunk' $backup_check_file | wc -l )
+    backup_check_file_timestamp_epoch_ns="${backup_check_file_timestamp_epoch}000000000"
+
+    echo "backup_check return_code=${return_code},repository_error=${repository_error},archive_error=${archive_error},chunks_missing=${chunks_missing},integrity_errors=${integrity_errors},defect_chunks=${defect_chunks} $backup_check_file_timestamp_epoch_ns"
+  fi
+fi
