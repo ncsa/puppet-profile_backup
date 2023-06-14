@@ -24,9 +24,10 @@ if [ -s "$backup_run_file" ] ; then
     files_modified=$( egrep '^M /' $backup_run_file | wc -l )
     #files_unchanged=$( egrep '^U /' $backup_run_file | wc -l )
     prune_return_code=$( grep -i -B1 'prune finished' $backup_run_file | grep -i terminating | grep rc | awk '{ print $NF }' | sort -rn | head -n1 )
+    server_errors=$( grep -i 'No backup servers' $backup_run_file | grep -i error | wc -l)
     backup_run_file_timestamp_epoch_ns="${backup_run_file_timestamp_epoch}000000000"
 
-    echo "backup archives_created=${archives_created},archives_kept=${archives_kept},archives_pruned=${archives_pruned},backup_jobs=${backup_jobs},backup_return_code=${backup_return_code},files_added=${files_added},files_changed_in_process=${files_changed_in_process},files_errored=${files_errored},files_modified=${files_modified},prune_return_code=${prune_return_code} $backup_run_file_timestamp_epoch_ns"
+    echo "backup archives_created=${archives_created},archives_kept=${archives_kept},archives_pruned=${archives_pruned},backup_jobs=${backup_jobs},backup_return_code=${backup_return_code},files_added=${files_added},files_changed_in_process=${files_changed_in_process},files_errored=${files_errored},files_modified=${files_modified},prune_return_code=${prune_return_code},server_errors=${server_errors} $backup_run_file_timestamp_epoch_ns"
   fi
 
   # GET LATEST BACKUP TIMES FOR EACH BACKUP JOB
@@ -60,8 +61,9 @@ if [ -s "$backup_check_file" ] ; then
     chunks_missing=$( grep -i 'chunk missing' $backup_check_file | wc -l )
     integrity_errors=$( grep -i 'integrity error' $backup_check_file | wc -l )
     defect_chunks=$( grep -i 'defect chunk' $backup_check_file | wc -l )
+    server_errors=$( grep -i 'No backup servers' $backup_run_file | grep -i error | wc -l)
     backup_check_file_timestamp_epoch_ns="${backup_check_file_timestamp_epoch}000000000"
 
-    echo "backup_check return_code=${return_code},repository_error=${repository_error},archive_error=${archive_error},chunks_missing=${chunks_missing},integrity_errors=${integrity_errors},defect_chunks=${defect_chunks} $backup_check_file_timestamp_epoch_ns"
+    echo "backup_check return_code=${return_code},repository_error=${repository_error},archive_error=${archive_error},chunks_missing=${chunks_missing},integrity_errors=${integrity_errors},defect_chunks=${defect_chunks},server_errors=${server_errors} $backup_check_file_timestamp_epoch_ns"
   fi
 fi
