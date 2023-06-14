@@ -27,12 +27,14 @@ See https://wiki.ncsa.illinois.edu/display/ICI/NCSA+Service+Backups
 Generally only clients that use a **puppet profile** class that needs backups should be configured for backups. 
 So to setup a backup client in a **puppet profile** class for a service 1) include `profile_backup::client` and 2) add a backup job:
 ```
-include ::profile_backup::client
+if ( lookup('profile_backup::client::enabled') ) {
+  include ::profile_backup::client
 
-profile_backup::client::add_job { 'jobname':
-  paths             => [ '/directory1', '/tmp/directory2.tar', ],
-  prehook_commands  => 'tar cf /tmp/directory2.tar /directory2',
-  posthook_commands => 'rm -f /tmp/directory2.tar',
+  profile_backup::client::add_job { 'jobname':
+    paths             => [ '/directory1', '/tmp/directory2.tar', ],
+    prehook_commands  => [ 'tar cf /tmp/directory2.tar /directory2', ],
+    posthook_commands => [ 'rm -f /tmp/directory2.tar', ],
+  }
 }
 ```
 

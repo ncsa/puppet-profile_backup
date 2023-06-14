@@ -7,21 +7,21 @@
 #   Can be a list of directories and/or specific files.
 #
 # @param prehook_commands
-#   Optional commands to run before backup job
+#   Optional list of commands to run before backup job
 #
 # @param posthook_commands
-#   Optional commands to run after the backup job
+#   Optional list of commands to run after the backup job
 #
 # @example
 #   profile_backup::client::add_job { 'jobname':
 #     paths             => [ '/directory1', '/tmp/directory2.tar', ],
-#     prehook_commands  => 'tar cf /tmp/directory2.tar /directory2',
-#     posthook_commands => 'rm -f /tmp/directory2.tar',
+#     prehook_commands  => [ 'tar cf /tmp/directory2.tar /directory2', ],
+#     posthook_commands => [ 'rm -f /tmp/directory2.tar', ],
 #   }
 define profile_backup::client::add_job (
   Array[String] $paths,
-  Optional[String] $prehook_commands = undef,
-  Optional[String] $posthook_commands = undef,
+  Optional[Array[String]] $prehook_commands = undef,
+  Optional[Array[String]] $posthook_commands = undef,
 ) {
   $backup_paths = $paths.join(' ')
   $work_directory = $profile_backup::client::work_directory

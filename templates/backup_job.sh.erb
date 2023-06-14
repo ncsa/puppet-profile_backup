@@ -6,7 +6,9 @@ set -x
 
 <% if @prehook_commands -%>
 # COMMANDS TO RUN BEFORE BACKUP
-<%= @prehook_commands %>
+<%  @prehook_commands.each do |command| -%>
+<%= command %>
+<% end -%>
 <% end -%>
 
 # BORG BACKUP OF <%= @name %>
@@ -14,6 +16,8 @@ set -x
 
 <% if @posthook_commands -%>
 # COMMANDS TO RUN AFTER BACKUP
-<%= @posthook_commands %>
+<%  @posthook_commands.each do |command| -%>
+<%= command %>
+<% end -%>
 <% end -%>
 
