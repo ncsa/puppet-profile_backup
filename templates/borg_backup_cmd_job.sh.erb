@@ -1,0 +1,133 @@
+#!/bin/sh
+# This file is managed by Puppet.
+# Adapted from https://borgbackup.readthedocs.io/en/stable/quickstart.html#automating-backups
+
+croak() {
+  logr "ERROR - $*"
+  echo "ERROR - $*"
+  exit 99
+}
+
+print_usage() {
+    cat <<ENDHERE
+Usage:
+    borg_backup_job [OPTIONS]
+
+OPTIONS:
+    -h | --help
+        Print usage message and exit
+    -j | --job '<JOBNAME>'
+        Name of backup job
+    -c | --command '<COMMAND>'
+        The command that is ran and stdout is output to a backup
+    -f | --filename '<FILENAME>'
+        Name of the file the stdout of the command
+
+
+ENDHERE
+}
+
+# DO WORK
+ENDWHILE=0
+while [[ $# -gt 0 ]] && [[ $ENDWHILE -eq 0 ]] ; do
+  case $1 in
+    -h|--help)
+        print_usage
+        exit 0
+        ;;
+    -j|--job)
+        JOBNAME="$2"
+        shift
+        ;;
+    -c|--command)
+        COMMAND="$2"
+        shift
+        ;;
+    -f|--filename)
+        FILENAME="$2"
+        shift
+        ;;
+ 
+    --)
+        ENDWHILE=1
+        ;;
+    -*)
+        croak "Invalid option '$1'"
+        ;;
+     *)
+        ENDWHILE=1
+        break
+        ;;
+  esac
+  shift
+done
+
+if [ -z "$JOBNAME" ] || [ -z "$FILENAME" ] || [ -z "$COMMAND" ]; then
+  echo "Error: you must supply both a job name, a filename to output, and the command to backup."
+  print_usage
+  exit 0
+fi
+
+
+# LOAD CLIENT BORG DEFAULTS
+source <%= @work_directory %>/borg_defaults.sh
+
+# some helpers and error handling:
+#info() { printf "%s %s\n" "$( date ) ${JOBNAME}:" "$*" >&2; }
+trap 'echo $( date ) Backup interrupted >&2; exit 2' INT TERM
+
+echo "$JOBNAME backup command: $COMMAND"
+
+# INITIALIZE REPO IF NECESSARY
+#$BORG echo &>/dev/null || ( echo "Setting up initial backup repository" ; $BORG init --encryption=repokey )
+$BORG init --encryption=repokey
+
+echo "$JOBNAME backup starting"
+
+# Run the COMMAND and backup into an archive named after JOBNAME and now timestamp with the name
+$COMMAND |                          \
+  $BORG create                      \
+    --stdin-name $FILENAME          \
+    --verbose                       \
+    --list                          \
+    --filter AME                    \
+    --show-rc                       \
+    --compression lz4               \
+    ::"${JOBNAME}-{now}"            \
+    -
+backup_exit=$?
+
+if [ ${backup_exit} -eq 0 ]; then
+    echo "$JOBNAME backup finished successfully"
+elif [ ${backup_exit} -eq 1 ]; then
+    echo "$JOBNAME backup finished with warnings"
+else
+    echo "$JOBNAME backup finished with errors"
+fi
+
+echo "$JOBNAME pruning repository"
+
+# Use the `prune` subcommand to maintain archive according to $BORG_PRUNE_OPTIONS
+# The '${JOBNAME}-*' matching is very important to limit prune's operation
+# to this JOBNAME's archives and not apply to other archives also:
+
+$BORG prune                          \
+    --list                          \
+    --glob-archives "${JOBNAME}-*"  \
+    --show-rc                       \
+    $BORG_PRUNE_OPTIONS
+
+prune_exit=$?
+
+if [ ${prune_exit} -eq 0 ]; then
+    echo "$JOBNAME prune finished successfully"
+elif [ ${prune_exit} -eq 1 ]; then
+    echo "$JOBNAME prune finished with warnings"
+else
+    echo "$JOBNAME prune finished with errors"
+fi
+
+# use highest exit code as global exit code
+global_exit=$(( backup_exit > prune_exit ? backup_exit : prune_exit ))
+
+exit ${global_exit}

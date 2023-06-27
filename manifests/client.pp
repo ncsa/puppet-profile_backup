@@ -124,6 +124,9 @@ class profile_backup::client (
       "${work_directory}/borg_backup_job.sh" => {
         content => template('profile_backup/borg_backup_job.sh.erb'),
       },
+      "${work_directory}/borg_backup_cmd_job.sh" => {
+        content => template('profile_backup/borg_backup_cmd_job.sh.erb'),
+      },
       "${work_directory}/cron_do_backup.sh" => {
         content => template('profile_backup/cron_do_backup.sh.erb'),
       },
