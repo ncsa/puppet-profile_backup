@@ -38,6 +38,16 @@ if ( lookup('profile_backup::client::enabled') ) {
 }
 ```
 
+In instances where data is read from STDOUT when a command is ran (mysql dump), the class add_cmd_job.
+
+```
+profile_backup::client::add_cmd_job { "mysql_all_databases":
+  backup_command  => "${backup_cmd} ${backup_cmd_options} --all-databases",
+  filename => "mysql_all_databases.dump",
+
+```
+
+
 The backup clients will need the following parameters supplied:
 ```yaml
 profile_backup::client::encryption_passphrase: "CHANGE ME"  # PREFERABLY IN EYAML
