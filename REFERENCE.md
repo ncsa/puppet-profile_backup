@@ -277,9 +277,16 @@ profile_backup::client::add_job { 'jobname':
 }
 ```
 
-### <a name="profile_backup--client--add_cmd_job"></a>`profile_backup::client::add_job`
+### <a name="profile_backup--client--add_cmd_job"></a>`profile_backup::client::add_cmd_job`
 
 Add a service backup job to this backup client
+
+Add a service cmd backup job to this backup client
+This allows the streaming of data (STDOUT) directly to
+the backup without staging data to a file first. An example
+for the use would be to eliminate the need for a large database
+to be stored locally before being backed up.
+
 
 #### Examples
 

@@ -1,6 +1,10 @@
-# @summary Defined type to add a new service backup job
+# @summary Defined type to add a new service backup cmd job
 #
-# Add a service backup job to this backup client
+# Add a service cmd backup job to this backup client
+# This allows the streaming of data (STDOUT) directly to
+# the backup without staging data to a file first. An example
+# for the use would be to eliminate the need for a large database
+# to be stored locally before being backed up.
 #
 # @param backup_command
 #   List of directory paths for the job to backup.
