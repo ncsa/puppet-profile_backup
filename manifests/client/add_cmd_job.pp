@@ -21,11 +21,17 @@
 #   Optional list of commands to run after the backup job
 #
 # @example
-#   profile_backup::client::add_job { 'jobname':
-#     paths             => [ '/directory1', '/tmp/directory2.tar', ],
-#     prehook_commands  => [ 'tar cf /tmp/directory2.tar /directory2', ],
-#     posthook_commands => [ 'rm -f /tmp/directory2.tar', ],
+# 
+# This will dump the database to mydatabase.dump with the backup job name 
+# jobname. No space will be consumed on the localhost and the STDOUT of 
+# the mysqldump will be written to a file. 
+#
+#   profile_backup::client::add_cmd_job { 'jobname':
+#     backup_command    => 'mysqldump --single-transaction --all-databases',
+#     filename          => 'mydatabase.dump',
 #   }
+#
+
 define profile_backup::client::add_cmd_job (
   String $backup_command,
   String $filename,
