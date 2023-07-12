@@ -12,10 +12,10 @@ profile_backup::client::prune_settings:
   "keep-yearly": 2
 profile_backup::client::server_user: "svcncsaservicebackup"
 profile_backup::client::servers:
-  - "asd-backup01.internal.ncsa.edu"
-  - "asd-backup02.internal.ncsa.edu"
-  - "asd-backup03.internal.ncsa.edu"
-  - "asd-backup04.internal.ncsa.edu"
+  - "service-backup01.internal.ncsa.edu"
+  - "service-backup02.internal.ncsa.edu"
+  - "service-backup03.internal.ncsa.edu"
+  - "service-backup04.internal.ncsa.edu"
 profile_backup::client::ssh_key_type: "ssh-rsa"
 profile_backup::client::verify_cron_schedule:
   hour: 5
