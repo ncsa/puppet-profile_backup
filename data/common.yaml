@@ -54,11 +54,12 @@ profile_backup::common::pip_config: "/etc/pip.conf"
 profile_backup::common::pip_proxy: ""
 
 profile_backup::server::additional_sshd_match_params:
-  PubkeyAuthentication: "yes"
+  AllowGroups: "%{lookup('profile_backup::server::groupname')}"
   AuthenticationMethods: "publickey"
   Banner: "none"
   MaxAuthTries: "6"
   MaxSessions: "10"
+  PubkeyAuthentication: "yes"
   X11Forwarding: "no"
 profile_backup::server::allow_client_requires: []
 profile_backup::server::backup_directory: null
