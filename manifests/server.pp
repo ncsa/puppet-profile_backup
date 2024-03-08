@@ -68,18 +68,21 @@ class profile_backup::server (
 
   # SETUP BACKUP USER & GROUP
   group { $groupname:
-    ensure => 'present',
-    gid    => $gid,
+    ensure     => 'present',
+    forcelocal => true,
+    gid        => $gid,
   }
 
   user { $username:
-    ensure   => 'present',
-    uid      => $uid,
-    gid      => $gid,
-    home     => $backup_directory,
-    password => '!!',
-    shell    => '/bin/bash',
-    comment  => 'NCSA Service Backups',
+    ensure     => 'present',
+    uid        => $uid,
+    forcelocal => true,
+    gid        => $gid,
+    groups     => [$groupname],
+    home       => $backup_directory,
+    password   => '!!',
+    shell      => '/bin/bash',
+    comment    => 'NCSA Service Backups',
   }
 
   # COLLECT EXPORTED RESOURCES FOR backup_allow_client_on_server
