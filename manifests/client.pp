@@ -180,13 +180,13 @@ class profile_backup::client (
 
   cron { 'profile_backup verify':
     ensure  => $cron_ensure,
-    command => "${work_directory}/cron_check_backup.sh",
+    command => "${work_directory}/cron_check_backup.sh > /dev/null 2>&1 || ( echo BACKUP VERIFY ERROR ; cat /var/log/backup_check_last_run )",
     *       => $verify_cron_schedule,
   }
 
   cron { 'profile_backup backup jobs':
     ensure  => $cron_ensure,
-    command => "${work_directory}/cron_do_backup.sh",
+    command => "${work_directory}/cron_do_backup.sh > /dev/null 2>&1 || ( echo BACKUP JOBS ERROR ; cat /var/log/backup_last_run )",
     *       => $job_cron_schedule,
   }
 }
