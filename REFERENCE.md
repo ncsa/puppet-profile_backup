@@ -13,8 +13,8 @@
 
 ### Defined types
 
+* [`profile_backup::client::add_cmd_job`](#profile_backup--client--add_cmd_job)
 * [`profile_backup::client::add_job`](#profile_backup--client--add_job): Defined type to add a new service backup job
-* [`profile_backup::client::add_cmd_job`](#profile_backup--client--add_cmd_job): Defined type to add a new service cmd backup job
 * [`profile_backup::server::allow_client`](#profile_backup--server--allow_client): Enable backup client to access backup server
 
 ## Classes
@@ -261,6 +261,47 @@ Username that owns backup files and allowed access.
 
 ## Defined types
 
+### <a name="profile_backup--client--add_cmd_job"></a>`profile_backup::client::add_cmd_job`
+
+The profile_backup::client::add_cmd_job class.
+
+#### Parameters
+
+The following parameters are available in the `profile_backup::client::add_cmd_job` defined type:
+
+* [`backup_command`](#-profile_backup--client--add_cmd_job--backup_command)
+* [`filename`](#-profile_backup--client--add_cmd_job--filename)
+* [`prehook_commands`](#-profile_backup--client--add_cmd_job--prehook_commands)
+* [`posthook_commands`](#-profile_backup--client--add_cmd_job--posthook_commands)
+
+##### <a name="-profile_backup--client--add_cmd_job--backup_command"></a>`backup_command`
+
+Data type: `String`
+
+
+
+##### <a name="-profile_backup--client--add_cmd_job--filename"></a>`filename`
+
+Data type: `String`
+
+
+
+##### <a name="-profile_backup--client--add_cmd_job--prehook_commands"></a>`prehook_commands`
+
+Data type: `Optional[Array[String]]`
+
+
+
+Default value: `undef`
+
+##### <a name="-profile_backup--client--add_cmd_job--posthook_commands"></a>`posthook_commands`
+
+Data type: `Optional[Array[String]]`
+
+
+
+Default value: `undef`
+
 ### <a name="profile_backup--client--add_job"></a>`profile_backup::client::add_job`
 
 Add a service backup job to this backup client
@@ -272,35 +313,10 @@ Add a service backup job to this backup client
 ```puppet
 profile_backup::client::add_job { 'jobname':
   paths             => [ '/directory1', '/tmp/directory2.tar', ],
-  prehook_commands  => 'tar cf /tmp/directory2.tar /directory2',
-  posthook_commands => 'rm -f /tmp/directory2.tar',
+  prehook_commands  => [ 'tar cf /tmp/directory2.tar /directory2', ],
+  posthook_commands => [ 'rm -f /tmp/directory2.tar', ],
 }
 ```
-
-### <a name="profile_backup--client--add_cmd_job"></a>`profile_backup::client::add_cmd_job`
-
-Add a service backup job to this backup client
-
-Add a service cmd backup job to this backup client
-This allows the streaming of data (STDOUT) directly to
-the backup without staging data to a file first. An example
-for the use would be to eliminate the need for a large database
-to be stored locally before being backed up.
-
-
-#### Examples
-
-##### 
-
-```puppet
-profile_backup::client::add_cmd_job { 'jobname':
-  backup_command    => 'mysqldump --single-transaction mydatabase',
-  filename          => 'mydatabase.dump',  
-  prehook_commands  => 'tar cf /tmp/directory2.tar /directory2',
-  posthook_commands => 'rm -f /tmp/directory2.tar',
-}
-```
-
 
 #### Parameters
 
@@ -319,52 +335,17 @@ Can be a list of directories and/or specific files.
 
 ##### <a name="-profile_backup--client--add_job--prehook_commands"></a>`prehook_commands`
 
-Data type: `Optional[String]`
+Data type: `Optional[Array[String]]`
 
-Optional commands to run before backup job
+Optional list of commands to run before backup job
 
 Default value: `undef`
 
 ##### <a name="-profile_backup--client--add_job--posthook_commands"></a>`posthook_commands`
 
-Data type: `Optional[String]`
+Data type: `Optional[Array[String]]`
 
-Optional commands to run after the backup job
-
-Default value: `undef`
-
-The following parameters are available in the `profile_backup::client::add_cmd_job` defined type:
-
-* [`command`](#-profile_backup--client--add_cmd_job--command)
-* [`filename`](#-profile_backup--client--add_cmd_job--filename)
-* [`prehook_commands`](#-profile_backup--client--add_job--prehook_commands)
-* [`posthook_commands`](#-profile_backup--client--add_job--posthook_commands)
-
-##### <a name="-profile_backup--client--add_cmd_job--command"></a>`paths`
-
-Data type: `String`
-
-Command to be ran in which the STDOUT is captured and backed up
-
-##### <a name="-profile_backup--client--add_cmd_job--command"></a>`paths`
-
-Data type: `String`
-
-Name of the file within the archive to store the data from the command
-
-##### <a name="-profile_backup--client--add_cmd_job--prehook_commands"></a>`prehook_commands`
-
-Data type: `Optional[String]`
-
-Optional commands to run before cmd backup job
-
-Default value: `undef`
-
-##### <a name="-profile_backup--client--add_cmd_job--posthook_commands"></a>`posthook_commands`
-
-Data type: `Optional[String]`
-
-Optional commands to run after the cmd backup job
+Optional list of commands to run after the backup job
 
 Default value: `undef`
 
