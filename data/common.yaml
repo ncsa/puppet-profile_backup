@@ -22,37 +22,6 @@ profile_backup::client::verify_cron_schedule:
   minute: 0
 profile_backup::client::work_directory: "/root/backup"
 
-profile_backup::common::packages:
-  "gcc-c++":
-  "libacl":
-  "libacl-devel":
-  "libzstd-devel":
-  "lz4-devel":
-  "openssl-devel":
-  "python3":
-  "python3-devel":
-  "python3-pip":
-  "pkgconfig":
-    provider: "pip3"
-    require:
-      - "Package[python3-pip]"
-  "setuptools-scm":
-    provider: "pip3"
-    require:
-      - "Package[pkgconfig]"
-  "borgbackup":
-    provider: "pip3"
-    require:
-      - "Package[gcc-c++]"
-      - "Package[libacl-devel]"
-      - "Package[libzstd-devel]"
-      - "Package[lz4-devel]"
-      - "Package[openssl-devel]"
-      - "Package[pkgconfig]"
-      - "Package[setuptools-scm]"
-profile_backup::common::pip_config: "/etc/pip.conf"
-profile_backup::common::pip_proxy: ""
-
 profile_backup::server::additional_sshd_match_params:
   AllowGroups: "%{lookup('profile_backup::server::groupname')}"
   AuthenticationMethods: "publickey"
