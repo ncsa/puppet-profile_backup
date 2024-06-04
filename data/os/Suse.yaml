@@ -1,0 +1,34 @@
+---
+profile_backup::common::packages:
+  "gcc-c++":
+  "libacl1":
+  "libacl-devel":
+  "libzstd1":
+  "libzstd-devel":
+  "liblz4-devel":
+  #"openssl-devel":
+  "libopenssl-devel":
+  "python3":
+  "python3-devel":
+  "python3-pip":
+  "pkgconfig":
+    provider: "pip3"
+    require:
+      - "Package[python3-pip]"
+  "setuptools-scm":
+    provider: "pip3"
+    require:
+      - "Package[pkgconfig]"
+  "borgbackup":
+    provider: "pip3"
+    require:
+      - "Package[gcc-c++]"
+      - "Package[libacl-devel]"
+      - "Package[libzstd-devel]"
+      - "Package[liblz4-devel]"
+      - "Package[libopenssl-devel]"
+      - "Package[pkgconfig]"
+      - "Package[setuptools-scm]"
+
+profile_backup::common::pip_config: "/etc/pip.conf"
+profile_backup::common::pip_proxy: ""
