@@ -1,9 +1,16 @@
 ---
 profile_backup::client::enabled: true
 profile_backup::client::encryption_passphrase: "CHANGE ME"
+profile_backup::client::env_vars: {}
+# example data you might use if borgbackup and the other required Python
+# packages were installed in /opt/borg/ instead of the default system location:
+#profile_backup::client::env_vars:
+#  PYTHONPATH: "/opt/borg/lib64/python3.6/site-packages:/opt/borg/lib/python3.6/site-packages:$PYTHONPATH"
+#  BORG: "/opt/borg/bin/borg"
 profile_backup::client::job_cron_schedule:
   hour: 0
   minute: 30
+profile_backup::client::network_interface: null
 profile_backup::client::prune_settings:
   "keep-hourly": 1
   "keep-daily": 7
@@ -33,6 +40,7 @@ profile_backup::server::additional_sshd_match_params:
 profile_backup::server::allow_client_requires: []
 profile_backup::server::backup_directory: null
 profile_backup::server::clients: {}
+profile_backup::server::exported_clients: true
 profile_backup::server::gid: null
 profile_backup::server::groupname: "nobody"
 profile_backup::server::storage_dependencies: []

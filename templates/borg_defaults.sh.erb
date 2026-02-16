@@ -8,6 +8,9 @@ export BORG_RSH='ssh -i <%= @sshdir %>/backup_id_<%= @ssh_key_type %> -o StrictH
 export BORG_PASSPHRASE='<%= @encryption_passphrase %>'
 export BORG_PRUNE_OPTIONS='<%= @prune_options_string %>'
 export BORG_RELOCATED_REPO_ACCESS_IS_OK=yes
+<% @env_vars.each do | key, value | -%>
+export <%= key %>=<%= value %>
+<% end -%>
 
 SERVER_LIST='<%= @server_list %>'
 # CHOOSE BACKUP SERVER THAT IS RESPONDING

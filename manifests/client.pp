@@ -6,8 +6,24 @@
 # @param encryption_passphrase
 #   Encryption passphrase used by the client's backups
 #
+# @param env_vars
+#   Optionally provide specific additional environment variables to be set/
+#   exported in the borg_defaults.sh script. These are references in the
+#   borg_defaults.sh.erb template file. E.g. if the borgbackup and the other
+#   required Python packages have been installed in /opt/borg/ instead of
+#   the default system location, you might add this:
+#     profile_backup::client::env_vars:
+#       PYTHONPATH: "/opt/borg/lib64/python3.6/site-packages:/opt/borg/lib/python3.6/site-packages:$PYTHONPATH"
+#       BORG: "/opt/borg/bin/borg"
+#
 # @param job_cron_schedule
 #   Cron settings for backup jobs
+#
+# @param network_interface
+#   Optional. The name of the network interface (e.g., eth0, ib0) that the client
+#   will use to SSH to the backup server. Use this to get the client to export
+#   an IP address that is different from the default IP address that facter
+#   determines.
 #
 # @param prune_settings
 #   Settings used for pruning client's backup data
@@ -38,7 +54,9 @@
 class profile_backup::client (
   Boolean $enabled,
   String $encryption_passphrase,
+  Hash $env_vars,
   Hash $job_cron_schedule,
+  Optional[String] $network_interface,
   Hash $prune_settings,
   String $server_user,
   Array[String] $servers,
@@ -162,10 +180,16 @@ class profile_backup::client (
       ],
     }
 
+    if $network_interface {
+      $ip_address = $facts['networking']['interfaces']["$network_interface"]['ip']
+    } else {
+      $ip_address = $facts['networking']['ip']
+    }
+
     # EXPORT CLIENT DETAILS TO BACKUP SERVER FOR ACCESS
     @@profile_backup::server::allow_client { "allow host ${facts['networking']['fqdn']} access to backup servers":
       hostname     => $facts['networking']['fqdn'],
-      ip           => $facts['networking']['ip'],
+      ip           => $ip_address,
       ssh_key_pub  => $ssh_key_pub,
       ssh_key_type => $ssh_key_type,
       tag          => 'profile_backup_allow_client',

@@ -54,7 +54,9 @@ The following parameters are available in the `profile_backup::client` class:
 
 * [`enabled`](#-profile_backup--client--enabled)
 * [`encryption_passphrase`](#-profile_backup--client--encryption_passphrase)
+* [`env_vars`](#-profile_backup--client--env_vars)
 * [`job_cron_schedule`](#-profile_backup--client--job_cron_schedule)
+* [`network_interface`](#-profile_backup--client--network_interface)
 * [`prune_settings`](#-profile_backup--client--prune_settings)
 * [`server_user`](#-profile_backup--client--server_user)
 * [`servers`](#-profile_backup--client--servers)
@@ -76,11 +78,33 @@ Data type: `String`
 
 Encryption passphrase used by the client's backups
 
+##### <a name="-profile_backup--client--env_vars"></a>`env_vars`
+
+Data type: `Hash`
+
+Optionally provide specific additional environment variables to be set/
+exported in the borg_defaults.sh script. These are references in the
+borg_defaults.sh.erb template file. E.g. if the borgbackup and the other
+required Python packages have been installed in /opt/borg/ instead of
+the default system location, you might add this:
+  profile_backup::client::env_vars:
+    PYTHONPATH: "/opt/borg/lib64/python3.6/site-packages:/opt/borg/lib/python3.6/site-packages:$PYTHONPATH"
+    BORG: "/opt/borg/bin/borg"
+
 ##### <a name="-profile_backup--client--job_cron_schedule"></a>`job_cron_schedule`
 
 Data type: `Hash`
 
 Cron settings for backup jobs
+
+##### <a name="-profile_backup--client--network_interface"></a>`network_interface`
+
+Data type: `Optional[String]`
+
+Optional. The name of the network interface (e.g., eth0, ib0) that the client
+will use to SSH to the backup server. Use this to get the client to export
+an IP address that is different from the default IP address that facter
+determines.
 
 ##### <a name="-profile_backup--client--prune_settings"></a>`prune_settings`
 
