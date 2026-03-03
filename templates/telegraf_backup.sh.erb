@@ -18,12 +18,18 @@ if [ -s "$backup_run_file" ] ; then
     archives_pruned=$( grep -i 'Pruning archive' $backup_run_file | wc -l )
     backup_jobs=$( grep -i 'backup starting' $backup_run_file | wc -l )
     backup_return_code=$( grep -i -B1 'backup finished' $backup_run_file | grep -i terminating | grep rc | awk '{ print $NF }' | sort -rn | head -n1 )
+    if [[ -z "$backup_return_code" ]]; then
+      backup_return_code=1
+    fi
     files_added=$( egrep '^A /' $backup_run_file | wc -l )
     files_changed_in_process=$( egrep '^C /' $backup_run_file | wc -l )
     files_errored=$( egrep '^E /' $backup_run_file | wc -l )
     files_modified=$( egrep '^M /' $backup_run_file | wc -l )
     #files_unchanged=$( egrep '^U /' $backup_run_file | wc -l )
     prune_return_code=$( grep -i -B1 'prune finished' $backup_run_file | grep -i terminating | grep rc | awk '{ print $NF }' | sort -rn | head -n1 )
+    if [[ -z "$prune_return_code" ]]; then
+      prune_return_code=1
+    fi
     server_errors=$( grep -i 'No backup servers' $backup_run_file | grep -i error | wc -l)
     backup_run_file_timestamp_epoch_ns="${backup_run_file_timestamp_epoch}000000000"
 
@@ -56,6 +62,9 @@ if [ -s "$backup_check_file" ] ; then
 
   if [ $backup_check_file_timestamp_epoch -ge $lastrun_timestamp_epoch ] ; then
     return_code=$( grep -i 'terminating with' $backup_check_file | grep rc | awk '{ print $NF }' )
+    if [[ -z "$return_code" ]]; then
+      return_code=1
+    fi
     repository_error=$( grep -i repository $backup_check_file | grep -i check | grep -i complete | grep -i found | egrep -vi ' no ' | wc -l )
     archive_error=$( grep -i archive $backup_check_file | grep -i check | grep -i complete | grep -i found | egrep -vi ' no ' | wc -l )
     chunks_missing=$( grep -i 'chunk missing' $backup_check_file | wc -l )
